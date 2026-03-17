@@ -1,0 +1,93 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: movie-booking-platform
+
+  # ── MySQL datasource ────────────────────────────────────────────────────────
+  datasource:
+    url: jdbc:mysql://localhost:3306/movie_booking?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # ── JPA / Hibernate ─────────────────────────────────────────────────────────
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update          # use 'validate' in production with Flyway
+    show-sql: false             # set true only for local debugging
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+
+  # ── Cache (simple in-memory; swap for Redis in production) ─────────────────
+  cache:
+    type: simple
+
+# ── JWT ─────────────────────────────────────────────────────────────────────
+jwt:
+  secret: XYZMovieBookingPlatformSecretKey2024LongEnoughForHS256AlgorithmSecurity
+  expiration-ms: 86400000      # 24 hours
+
+# ── Business offer configuration ─────────────────────────────────────────────
+app:
+  offers:
+    third-ticket-discount-percent: 50   # 50% off on every 3rd ticket
+    afternoon-discount-percent: 20      # 20% off for afternoon shows
+    afternoon-start-hour: 12            # window starts at 12:00
+    afternoon-end-hour: 16              # window ends   at 16:00
+
+# ── Actuator ─────────────────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# ── OpenAPI ──────────────────────────────────────────────────────────────────
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+# ── Logging ──────────────────────────────────────────────────────────────────
+logging:
+  level:
+    com.xyz.booking: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: INFO
+
+---
+# ── Test profile (H2 in-memory, no MySQL needed) ─────────────────────────────
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+  h2:
+    console:
+      enabled: true
