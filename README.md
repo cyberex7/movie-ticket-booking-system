@@ -329,4 +329,4 @@ If you encounter `java.lang.ExceptionInInitializerError: TypeTag::UNKNOWN` at co
 
 ## Contact
 
-support@xyz.com
+support@movie-booking.com
